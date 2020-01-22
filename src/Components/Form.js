@@ -1,5 +1,7 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import { AlertContext } from '../context/alert/alertContext'
+import localStorage from 'lockr'
+import randomKey from 'random-key-generator'
 
 
 export const Form = ({ notes, setUpdateNotes }) => {
@@ -10,16 +12,25 @@ export const Form = ({ notes, setUpdateNotes }) => {
         event.preventDefault()
 
         if (value.trim()) {
-            const newNotes = [...notes, { id: notes.length, title: value, done: false }]
-
-            setUpdateNotes({ notes: newNotes })
-
+            let newNotes = [...notes, { id: randomKey(5), title: value, done: false }]
+            
+            localStorage.set('notes', {notes: newNotes})         
+            setUpdateNotes({ notes: newNotes }) 
             alert.show(" The note was created", 'success')
             setValue('')
         } else {
             alert.show(' Enter your note')
         }
+
     }
+
+    useEffect(() => {
+        const saveFormDate = localStorage.get('notes')
+        if (saveFormDate) {
+            setUpdateNotes(saveFormDate)
+        }
+    }, [setUpdateNotes])
+
 
     return (
         <form onSubmit={submitHandler}>
